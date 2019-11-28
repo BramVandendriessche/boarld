@@ -46,7 +46,7 @@ snakepit_reward = -10
 args = (brain, nb_episodes, nb_of_eps_before_table_update, qtable_convergence_threshold, nb_steps_before_timeout,
         random_rate, learning_rate, discount_factor)
 agent = GridAgent(env.GRID, step_reward, goal_reward, snakepit_reward)
-agent.Qtable = Qtable.from_file('gridworld_Env7_6x6_100000_episodes.p')
+
 if withQtableJson or withAgentJson:
     client = Client('main', transport='websockets')
     client.connect('localhost', 9001)
