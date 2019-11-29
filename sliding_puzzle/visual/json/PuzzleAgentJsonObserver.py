@@ -13,7 +13,7 @@ class PuzzleAgentJsonObserver(JsonObserver):
         dic = {
             "nb_rows": observable.board.nb_rows,
             "nb_cols": observable.board.nb_cols,
-            "state": observable.current_state.to_string()
+            "state": observable.current_state.data
         }
 
         return json.dumps(dic)

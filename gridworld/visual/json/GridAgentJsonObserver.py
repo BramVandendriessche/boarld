@@ -21,7 +21,7 @@ class GridAgentJsonObserver(JsonObserver):
                 "start": [observable.init_state.data.x + 1, observable.init_state.data.y + 1],
                 "end": [[x + 1, y + 1] for x,y in observable.board.goals]
             },
-            "best_path_now": [[st.data.x, st.data.y] for st in
+            "best_path_now": [[st.data.x+1, st.data.y+1] for st in
                               observable.get_greedy_best_path_from_state_to_goal(observable.init_state)[1]],
             "best_actions": [
                 {"x": cell.x + 1, "y": cell.y + 1,
