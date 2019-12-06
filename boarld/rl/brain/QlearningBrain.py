@@ -19,11 +19,11 @@ class QlearningBrain(Brain):
 
             else:
                 self.agent.Qtable.update_value(old_state, next_action,
-                                               self.agent.get_reward(self.agent.current_state))
+                                               self.agent.get_reward(old_state, next_action))
         self.agent.reset()
 
     def get_new_q_value(self, old_state, new_state, next_action, learning_rate, discount_factor):
         p1 = (1 - learning_rate) * self.agent.Qtable.get_Q_value(old_state, next_action, True)
-        p2 = learning_rate * (self.agent.get_reward(new_state) + discount_factor *
-                                         self.agent.Qtable.get_greedy_best_action(new_state)[1])
+        p2 = learning_rate * (self.agent.get_reward(old_state, next_action) + discount_factor *
+                              self.agent.Qtable.get_greedy_best_action(new_state)[1])
         return p1 + p2

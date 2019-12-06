@@ -10,7 +10,7 @@ class SarsaBrain(Brain):
         while not self.agent.state_is_final(self.agent.current_state) and stps <= steps_before_timeout:
             stps += 1
             s2 = self.agent.move(a1)
-            r = self.agent.get_reward(s2)
+            r = self.agent.get_reward(s1, a1)
             a2 = self.agent.choose_action_epsilon_greedily(random_rate, s1)
             self.agent.Qtable.update_value(s1, a1, self.get_new_q_value(a1, a2, r, s1, s2, learning_rate, discount_factor))
             s1 = s2

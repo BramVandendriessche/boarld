@@ -6,10 +6,10 @@ from boarld.env.action.Action import *
 from boarld.env.board.Board import Board
 from boarld.env.state.State import State
 from boarld.rl.qtable.Qtable import Qtable
-from boarld.util.observ.Observable import Observable
+from boarld.util.observ.JsonObservable import JsonObservable
 
 
-class Agent(Observable, ABC):
+class Agent(JsonObservable, ABC):
 
     def __init__(self, board: Board, init_state: State, final_states: Set[State], step_reward=-2, goal_reward=10):
         super().__init__()
@@ -28,7 +28,7 @@ class Agent(Observable, ABC):
         self.traveled_path = [self.current_state]
 
     @abstractmethod
-    def get_reward(self, state: State):
+    def get_reward(self, state: State, action: Action):
         pass
 
     @abstractmethod
@@ -40,15 +40,23 @@ class Agent(Observable, ABC):
         pass
 
     @abstractmethod
-    def get_new_state_after_action(self, current_state: State, action: Action):
+    def get_new_state_after_action(self, current_state: State, action: Action, move_from_absorbing_state_allowed: bool = False):
         pass
 
     @abstractmethod
     def set_agent_to_random_state(self, **kwargs):
         pass
 
+    @abstractmethod
+    def get_list_of_possible_states(self):
+        pass
+
+    def solve(self):
+        for ac in self.get_greedy_best_path_from_state_to_goal(self.current_state)[0]:
+            self.move(ac)
+
     # By default, return all possible actions; to be overridden by child when required.
-    def get_possible_actions(self, state=None):
+    def get_possible_actions(self, state=None, move_from_absorbing_state_allowed: bool = False):
         return self.possible_actions
 
     def learn(self, brain, nb_episodes, nb_of_eps_before_table_update, qtable_convergence_threshold,
@@ -56,8 +64,8 @@ class Agent(Observable, ABC):
         brain(self).learn(nb_episodes, nb_of_eps_before_table_update, qtable_convergence_threshold,
                           nb_steps_before_timeout, random_rate, learning_rate, discount_factor)
 
-    def get_results_of_all_possible_actions(self, state):
-        return [(a, self.get_new_state_after_action(state, a))
+    def get_results_of_all_possible_actions(self, state, move_from_absorbing_state_allowed: bool=False):
+        return [(a, self.get_new_state_after_action(state, a, move_from_absorbing_state_allowed=move_from_absorbing_state_allowed))
                 for a in self.get_possible_actions()]
 
     def reset(self):
@@ -68,7 +76,10 @@ class Agent(Observable, ABC):
 
     def choose_action_epsilon_greedily(self, epsilon, state: State):
         if random.random() < epsilon:
-            return self.get_possible_actions(state)[random.randint(0, len(self.get_possible_actions(state)) - 1)]
+            acts = self.get_possible_actions(state)
+            if len(acts) == 0:
+                return None
+            return acts[random.randint(0, len(acts) - 1)]
         else:
             return self.Qtable.get_greedy_best_action(state, self.get_possible_actions(state))[0]
 

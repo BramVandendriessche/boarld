@@ -16,14 +16,14 @@ def set_of_cells_to_dict(cells: Set[Cell]) -> Dict[Tuple[int, int], Cell]:
 class Grid(Board):
 
     def __init__(self, nb_rows: int, nb_cols: int, start: Start, goals: Set[Goal], snake_pits: Set[SnakePit] = set(),
-                 walls: Set[Wall] = set()):
+                 walls: Set[Wall] = set(), name: str = ''):
         if not goals:
             raise ValueError("The board should be given at least one Goal, but none were given.")
         self.start: Start = start
         self.goals: dict = set_of_cells_to_dict(goals)
         self.snake_pits: dict = set_of_cells_to_dict(snake_pits)
         self.walls: dict = set_of_cells_to_dict(walls)
-        super().__init__(nb_rows, nb_cols)
+        super().__init__(nb_rows, nb_cols, name)
 
     def _build_board(self):
         board = []

@@ -1,5 +1,6 @@
 import random
 from typing import Dict
+import json
 
 from boarld.env.action.Action import *
 from boarld.env.state.State import State
@@ -19,10 +20,13 @@ class GridAgent(Agent):
 
         self.snakepit_reward = snakepit_reward
 
-    def get_reward(self, state: State):
-        if isinstance(state.data, Goal):
+    def get_reward(self, state: State, action: Action):
+        if isinstance(state.data, Goal) or isinstance(state.data, SnakePit) or isinstance(state.data, Wall):
+            return 0
+        new_state = self.get_new_state_after_action(state, action)
+        if isinstance(new_state.data, Goal):
             return self.goal_reward
-        elif isinstance(state.data, SnakePit):
+        elif isinstance(new_state.data, SnakePit):
             return self.snakepit_reward
         else:
             return self.step_reward  # TODO: bigger penalty if stays in same state?
@@ -36,9 +40,13 @@ class GridAgent(Agent):
         self.notify_observers_of_change()
         return self.current_state
 
-    def get_new_state_after_action(self, current_state: State, action: Action) -> State:
+    def get_new_state_after_action(self, current_state: State, action: Action, move_from_absorbing_state_allowed: bool = False) -> State:
         new_state = current_state
-        if action == Up:
+        if (not move_from_absorbing_state_allowed) and (isinstance(current_state.data, Goal) or isinstance(
+                current_state.data, SnakePit)) \
+                or isinstance(current_state.data, Wall):
+            pass
+        elif action == Up:
             new_state = self.map_cell_to_state(self.board.cells[max(0, current_state.data.y - 1)][current_state.data.x])
         elif action == Down:
             new_state = self.map_cell_to_state(
@@ -60,3 +68,28 @@ class GridAgent(Agent):
         self.traveled_path = [self.current_state]
         self.notify_observers_of_change()
         return self.current_state
+
+    def get_list_of_possible_states(self):
+        return list(self.possible_states.values())
+
+    def serialize(self):
+        dic = {
+            "board_setup": {
+                "nb_rows": self.board.nb_rows,
+                "nb_cols": self.board.nb_cols,
+                "holes": [[x + 1, y + 1] for x, y in self.board.snake_pits.keys()],
+                "obstacles": [[x + 1, y + 1] for x, y in self.board.walls.keys()],
+                "footsteps": [[st.data.x + 1, st.data.y + 1] for st in self.traveled_path],
+                "start": [self.init_state.data.x + 1, self.init_state.data.y + 1],
+                "end": [[x + 1, y + 1] for x,y in self.board.goals]
+            },
+            "best_path_now": [[st.data.x+1, st.data.y+1] for st in
+                              self.get_greedy_best_path_from_state_to_goal(self.init_state)[1]],
+            "best_actions": [
+                {"x": cell.x + 1, "y": cell.y + 1,
+                 "actions": [ac.to_string() for ac,_ in self.Qtable.get_list_of_greedy_best_actions(self.map_cell_to_state(cell))]}
+                for cell in self.board.cell_set
+            ]
+
+        }
+        return json.dumps(dic)

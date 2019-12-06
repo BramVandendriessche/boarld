@@ -8,14 +8,14 @@ from sliding_puzzle.env.state.State import PuzzleState
 
 
 class SlidingPuzzle(Board):
-    def __init__(self, nb_rows: int, nb_cols: int, sequence: List[int] = None):
+    def __init__(self, nb_rows: int, nb_cols: int, sequence: List[int] = None, name: str = ''):
         self.init_sequence = sequence
         if sequence is not None and len(sequence) != nb_cols * nb_rows:
             raise ValueError(
                 "The given sequence has length %s but expected %s values." % (len(sequence), nb_rows * nb_cols))
         elif sequence is None:
             self.init_sequence = [k for k in range(1, nb_rows * nb_cols)] + [0]
-        super().__init__(nb_rows, nb_cols)
+        super().__init__(nb_rows, nb_cols, name)
         self.value_to_cell_dict = {cell.value: cell for cell in self.cell_set}
         self.zero_cell = self.value_to_cell_dict[0]
         self.init_state = self.puzzle_to_state()

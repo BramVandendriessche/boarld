@@ -1,3 +1,4 @@
+import json
 import pickle
 from math import inf, isinf
 from random import randint
@@ -5,10 +6,10 @@ from typing import Set, List
 
 from boarld.env.action.Action import Action
 from boarld.env.state.State import State
-from boarld.util.observ.Observable import Observable
+from boarld.util.observ.JsonObservable import JsonObservable
 
 
-class Qtable(Observable):
+class Qtable(JsonObservable):
 
     def __init__(self, possible_actions: Set[Action.__class__], default_value=0):
         super().__init__()
@@ -19,10 +20,19 @@ class Qtable(Observable):
         self.shadowTable = {}
         self.snapshot = self.shadowTable.copy()
 
+    def serialize(self):
+        stateset = set([st for st, _ in self.table.keys()])
+        res = [{**{ac.to_string().lower(): str(self.table[(st, ac.to_string())]) for ac in
+                   self.possible_actions}, **{"state": st}} for st in stateset]
+        return json.dumps(res)
+
     def get_Q_value(self, state: State, action: Action, replace_neg_inf_by_default_value: bool = False):
-        key = (state.to_string(), action.to_string())
         if state not in self.possible_states:
             self.add_state_and_actions_to_table(state)
+        if action is None:
+            return self.default_value
+
+        key = (state.to_string(), action.to_string())
         if key not in self.table or isinf(self.table[key]):
             if replace_neg_inf_by_default_value:
                 return self.default_value
@@ -52,7 +62,9 @@ class Qtable(Observable):
         else:
             actions = possible_actions
         actions_and_rewards = [(ac, self.get_Q_value(state, ac)) for ac in actions]
-        ac, val = sorted(actions_and_rewards, key=lambda x: x[1], reverse=True)[0]
+        if len(actions_and_rewards) == 0:
+            return []
+        _, val = sorted(actions_and_rewards, key=lambda x: x[1], reverse=True)[0]
 
         # return random action if some actions yield equal Q-values
         actions_and_rewards = [(a, v) for a, v in actions_and_rewards if val == v]
@@ -60,7 +72,9 @@ class Qtable(Observable):
 
     def get_greedy_best_action(self, state: State, possible_actions: List[Action] = None):
         greedy_best_actions = self.get_list_of_greedy_best_actions(state, possible_actions)
-        ac,val = greedy_best_actions[0]
+        if len(greedy_best_actions) == 0:
+            return None, None
+        ac, val = greedy_best_actions[0]
         if len(greedy_best_actions) > 1:
             ac, val = greedy_best_actions[randint(0, len(greedy_best_actions) - 1)]
         return ac, val

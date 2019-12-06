@@ -1,7 +1,7 @@
 import time
-from abc import abstractmethod
 
 from boarld.rl.qtable.Qtable import Qtable
+from boarld.util.observ.JsonObservable import JsonObservable
 from boarld.util.observ.Observable import Observable
 from boarld.util.observ.Observer import Observer
 from boarld.visual.json import Topics
@@ -16,15 +16,13 @@ class JsonObserver(Observer):
         super().__init__()
         self.client: Client = client
 
-    def act_on_notify(self, observable: Observable):
+    def act_on_notify(self, observable: JsonObservable):
         # TODO: to reconnect or not to reconnect, that's the question..
+        if not isinstance(observable, JsonObservable):
+            raise ValueError("Observable %s is not of type JsonObservable." % observable)
         time.sleep(.3)
         # self.client.reconnect()
-        self.client.publish(self.map_topic(observable), self.observable_to_json(observable))
-
-    @abstractmethod
-    def observable_to_json(self, observable):
-        pass
+        self.client.publish(self.map_topic(observable), observable.serialize())
 
     @staticmethod
     def map_topic(observable: Observable):
