@@ -22,6 +22,7 @@ class Runner:
 
         if self.qtable_file_path:
             self.agent.Qtable = Qtable.from_file(self.qtable_file_path)
+            observer.add_observable(self.agent.Qtable)
             self.agent.Qtable.notify_observers_of_change()
         time.sleep(3)
 
@@ -33,3 +34,4 @@ class Runner:
 
     def with_qtable_imported_from(self, qtable_file_path):
         self.qtable_file_path = qtable_file_path
+        return self
