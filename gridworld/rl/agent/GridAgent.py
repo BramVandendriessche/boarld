@@ -21,7 +21,7 @@ class GridAgent(Agent):
         self.snakepit_reward = snakepit_reward
 
     def get_reward(self, state: State, action: Action):
-        if isinstance(state.data, Goal) or isinstance(state.data, SnakePit) or isinstance(state.data, Wall):
+        if isinstance(state.data, (Goal, SnakePit, Wall)):
             return 0
         new_state = self.get_new_state_after_action(state, action)
         if isinstance(new_state.data, Goal):
@@ -32,7 +32,7 @@ class GridAgent(Agent):
             return self.step_reward  # TODO: bigger penalty if stays in same state?
 
     def state_is_final(self, st):
-        return isinstance(st.data, Goal) or isinstance(st.data, SnakePit)
+        return isinstance(st.data, (Goal, SnakePit))
 
     def move(self, action: Action):
         self.current_state = self.get_new_state_after_action(self.current_state, action)
@@ -42,8 +42,7 @@ class GridAgent(Agent):
 
     def get_new_state_after_action(self, current_state: State, action: Action, move_from_absorbing_state_allowed: bool = False) -> State:
         new_state = current_state
-        if (not move_from_absorbing_state_allowed) and (isinstance(current_state.data, Goal) or isinstance(
-                current_state.data, SnakePit)) \
+        if (not move_from_absorbing_state_allowed) and (isinstance(current_state.data, (Goal, SnakePit))) \
                 or isinstance(current_state.data, Wall):
             pass
         elif action == Up:
@@ -88,7 +87,7 @@ class GridAgent(Agent):
             "best_actions": [
                 {"x": cell.x + 1, "y": cell.y + 1,
                  "actions": [ac.to_string() for ac,_ in self.Qtable.get_list_of_greedy_best_actions(self.map_cell_to_state(cell))]}
-                for cell in self.board.cell_set
+                for cell in self.board.cell_set if not isinstance(cell, (Wall, SnakePit, Goal))
             ]
 
         }
