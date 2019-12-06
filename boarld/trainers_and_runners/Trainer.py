@@ -1,7 +1,7 @@
 from paho.mqtt.client import Client
 
 from boarld.rl.agent.Agent import Agent
-from boarld.rl.brain.Brain import Brain
+from boarld.rl.brain.AbstractQlearningBrain import AbstractQlearningBrain
 from boarld.visual.json.JsonObserver import JsonObserver
 from boarld.util.mqtt_params import mqtt_params
 
@@ -53,7 +53,7 @@ class Trainer:
         self.export_qtable = export_qtable
         return self
 
-    def with_brain(self, brain: Brain):
+    def with_brain(self, brain: AbstractQlearningBrain):
         self.brain = brain
         return self
 

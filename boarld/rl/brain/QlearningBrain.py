@@ -1,7 +1,7 @@
-from boarld.rl.brain.Brain import Brain
+from boarld.rl.brain.AbstractQlearningBrain import AbstractQlearningBrain
 
 
-class QlearningBrain(Brain):
+class QlearningBrain(AbstractQlearningBrain):
 
     def episode(self, steps_before_timeout, random_rate, learning_rate, discount_factor):
         stps = 0
