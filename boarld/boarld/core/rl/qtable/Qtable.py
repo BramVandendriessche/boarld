@@ -178,7 +178,9 @@ class Qtable(JsonObservable):
         :return: None
         """
         with open(filename, 'wb') as file:
-            pickle.dump(self, file)
+            state = self.__dict__.copy()
+            del state['observers']
+            pickle.dump(state, file)
 
     @staticmethod
     def from_file(filename):
@@ -188,4 +190,6 @@ class Qtable(JsonObservable):
         :return: Loaded Q-table.
         """
         with open(filename, 'rb') as file:
-            return pickle.load(file)
+            table = Qtable(set())
+            table.__dict__.update(pickle.load(file))
+            return table
