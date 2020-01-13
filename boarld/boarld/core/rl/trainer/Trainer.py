@@ -35,6 +35,7 @@ class Trainer:
         """
         self._verify_hyperparameters()
 
+        observer = None
         if self.observe_agent or self.observe_qtable:
             client = Client('main', transport='websockets')
             client.connect(mqtt_params.MQTT_HOST, mqtt_params.MQTT_PORT)
@@ -52,6 +53,9 @@ class Trainer:
         if self.export_qtable:
             self.agent.Qtable.to_file(
                 '%s_%s_%s_episodes.p' % (self.agent.board.name, self.arlgorithm.__name__, self.nb_episodes))
+        if observer:
+            observer.remove_observable(self.agent)
+            observer.remove_observable(self.agent.Qtable)
 
     def with_observe_qtable(self, observe_qtable):
         """

@@ -1,4 +1,5 @@
 import time
+
 from paho.mqtt.client import Client
 
 from boarld.core.rl.agent.Agent import Agent
@@ -35,11 +36,16 @@ class Runner:
 
         if self.qtable_file_path:
             self.agent.Qtable = Qtable.from_file(self.qtable_file_path)
-            observer.add_observable(self.agent.Qtable)
-            self.agent.Qtable.notify_observers_of_change()
-        time.sleep(3)
+
+        observer.add_observable(self.agent.Qtable)
+        self.agent.Qtable.notify_observers_of_change()
+
+        time.sleep(4)
 
         self.agent.solve()
+
+        observer.remove_observable(self.agent)
+        observer.remove_observable(self.agent.Qtable)
 
     def with_agent(self, agent: Agent):
         """
