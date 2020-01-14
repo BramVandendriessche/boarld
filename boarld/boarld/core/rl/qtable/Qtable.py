@@ -112,20 +112,22 @@ class Qtable(JsonObservable):
 
         return [(a, v) for a, v in actions_and_rewards if val == v]
 
-    def get_greedy_best_action(self, state: State, possible_actions: List[Action] = None):
+    def get_greedy_best_action(self, state: State, possible_actions: List[Action] = None, decide_deterministically_on_equal_actions: bool = False):
         """
         Get the action yielding the highest Q-value in the given state.
         :param state: The state for which the best action should be found.
         :param possible_actions: List of actions to be considered in the given state. If None, all possible actions
         are considered.
+        :param decide_deterministically_on_equal_actions: If multiple actions are equally good, should an action
+        be chosen deterministically (useful for stable display of a best path) or at random?
         :return: The action yielding the highest Q-value in the given state. If multiple actions are equally valuable,
         one of these is returned randomly.
         """
-        greedy_best_actions = self.get_list_of_greedy_best_actions(state, possible_actions)
+        greedy_best_actions = sorted(self.get_list_of_greedy_best_actions(state, possible_actions), key=lambda x: x[0].__class__.__name__)
         if len(greedy_best_actions) == 0:
             return None, None
         ac, val = greedy_best_actions[0]
-        if len(greedy_best_actions) > 1:
+        if len(greedy_best_actions) > 1 and not decide_deterministically_on_equal_actions:
             ac, val = greedy_best_actions[randint(0, len(greedy_best_actions) - 1)]
         return ac, val
 

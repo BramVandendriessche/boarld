@@ -195,7 +195,7 @@ class Agent(JsonObservable, ABC):
         actions = []
         st = state
         while True:
-            action = self.Qtable.get_greedy_best_action(st)[0]
+            action = self.Qtable.get_greedy_best_action(st, decide_deterministically_on_equal_actions=True)[0]
             actions.append(action)
             st = self.get_new_state_after_action(st, action)
             if st in path:
