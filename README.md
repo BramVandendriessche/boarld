@@ -1,15 +1,2 @@
 # BOARLD
-
-## Requirements
-  - [`Python 3.x`](https://www.python.org/)
-  - [`pip`](https://pypi.org/project/pip/)
-
-## Dependencies
-*Note: There is no need to install dependencies separately, the module's installation takes care of them.* 
-- `progressbar2`  
-
-## Installation
-1. Clone (or download and extract) this repository
-2. In your terminal, navigate to `/path/of/repo/boarld/`, which contains `setup.py`
-3. Run `pip install .`
-
+Old repository of the backend of [ToThePoint](https://tothepoint.group/)'s reinforcement learning workshop at [AMLD2020](https://appliedmldays.org/). You can find all the information you need in the [documentation](https://tothepoint.gitlab.io/reinforcement-learning-workshop/boarldocu) and on [ToThePoint's GitLab page](https://gitlab.com/tothepoint/reinforcement-learning-workshop).
